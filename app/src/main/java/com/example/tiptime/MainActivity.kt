@@ -4,6 +4,7 @@ package com.example.tiptime
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -48,10 +49,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
+// stateful function
 fun TipTimeLayout() {
+    var tipInput by remember { mutableStateOf("") }
+    val tipPercentage = tipInput.toDoubleOrNull() ?: 0.0
+
     var amountInput by remember {mutableStateOf("")}
     val amount = amountInput.toDoubleOrNull() ?: 0.0
-    val tip = calculateTip(amount)
+    val tip = calculateTip(amount,tipPercentage)
     Column(
         modifier = Modifier.padding(40.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -63,12 +68,26 @@ fun TipTimeLayout() {
                 .padding(bottom = 16.dp)
                 .align(alignment = Alignment.Start)
         )
+        // Text field for Bill amount
         EditNumberField(
+            label = R.string.bill_amount,
             value = amountInput,
             onValueChanged = { amountInput = it } ,
             Modifier
                 .padding(bottom = 32.dp)
-                .fillMaxWidth())
+                .fillMaxWidth()
+        )
+
+        // Text field for Tip percentage
+        EditNumberField(
+            label = R.string.how_was_the_service,
+            value = tipInput,
+            onValueChanged = { tipInput = it},
+            modifier = Modifier
+                .padding(bottom = 32.dp)
+                .fillMaxWidth()
+        )
+
         Text(
             text = stringResource(R.string.tip_amount, tip),
             style = MaterialTheme.typography.displaySmall
@@ -78,9 +97,11 @@ fun TipTimeLayout() {
 }
 
 @Composable
+// This function will be reusable
 fun EditNumberField(
-    value : String ,
-    onValueChanged : (String) -> Unit ,
+    @StringRes label : Int,
+    value : String,
+    onValueChanged : (String) -> Unit,
     modifier: Modifier = Modifier
 ){
 
@@ -88,7 +109,7 @@ fun EditNumberField(
         value = value,
         singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        label =  { Text(stringResource(id = R.string.bill_amount))},
+        label =  { Text(stringResource(label))},
         onValueChange = onValueChanged,
         modifier = modifier
     )
